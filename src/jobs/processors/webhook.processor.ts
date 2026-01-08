@@ -90,9 +90,9 @@ export class WebhookProcessor {
       email: contact.email,
       phone: contact.phone,
       name: contact.name || `${contact.firstName || ''} ${contact.lastName || ''}`.trim(),
-      createdAt: new Date(contact.dateAdded || contact.createdAt || Date.now()),
-      updatedAt: new Date(contact.dateUpdated || contact.updatedAt || Date.now()),
-      customFields: contact.customFields || contact.customField || {},
+      createdAt: new Date(contact.dateAdded || Date.now()),
+      updatedAt: new Date(contact.dateUpdated || Date.now()),
+      customFields: contact.customFields || {},
     });
 
     // Update subscription if exists (custom fields may have changed)
@@ -106,7 +106,7 @@ export class WebhookProcessor {
         tenantId: event.tenantId,
         locationId: event.locationId,
         contactId: contact.id,
-        customFields: contact.customFields || contact.customField || {},
+        customFields: contact.customFields || {},
       },
       metricRules,
     );
@@ -149,15 +149,15 @@ export class WebhookProcessor {
       tenantId: event.tenantId,
       locationId: event.locationId,
       opportunityId: opportunity.id,
-      contactId: opportunity.contactId || opportunity.contact?.id,
+      contactId: opportunity.contactId,
       pipelineId: opportunity.pipelineId,
-      stageId: opportunity.pipelineStageId || opportunity.stageId,
+      stageId: opportunity.pipelineStageId,
       status: opportunity.status || 'open',
-      value: opportunity.monetaryValue || opportunity.value,
-      createdAt: new Date(opportunity.createdAt || opportunity.dateAdded || Date.now()),
-      updatedAt: new Date(opportunity.updatedAt || opportunity.dateUpdated || Date.now()),
+      value: opportunity.monetaryValue,
+      createdAt: new Date(opportunity.createdAt || Date.now()),
+      updatedAt: new Date(opportunity.updatedAt || Date.now()),
       wonAt: opportunity.status?.toLowerCase() === 'won'
-        ? new Date(opportunity.wonAt || opportunity.updatedAt || Date.now())
+        ? new Date(opportunity.updatedAt || Date.now())
         : null,
       raw: opportunity,
     });
@@ -177,8 +177,8 @@ export class WebhookProcessor {
           locationId: event.locationId,
           opportunityId: opportunity.id,
           contactId: opportunity.contactId,
-          value: opportunity.monetaryValue || opportunity.value,
-          wonAt: new Date(opportunity.wonAt || opportunity.updatedAt || Date.now()),
+          value: opportunity.monetaryValue,
+          wonAt: new Date(opportunity.updatedAt || Date.now()),
           status: opportunity.status || 'won',
         },
         metricRules,
@@ -212,9 +212,9 @@ export class WebhookProcessor {
       tenantId: event.tenantId,
       locationId: event.locationId,
       appointmentId: appointment.id,
-      contactId: appointment.contactId || appointment.contact?.id,
+      contactId: appointment.contactId,
       calendarId: appointment.calendarId,
-      startTime: new Date(appointment.startTime || appointment.appointmentStart || Date.now()),
+      startTime: new Date(appointment.startTime || Date.now()),
       status: appointment.status || appointment.appointmentStatus,
       createdAt: new Date(appointment.createdAt || Date.now()),
       updatedAt: new Date(appointment.updatedAt || Date.now()),

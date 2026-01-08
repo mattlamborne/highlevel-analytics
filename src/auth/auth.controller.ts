@@ -37,8 +37,8 @@ export class AuthController {
   @Get('callback')
   async handleCallback(
     @Query('code') code: string,
-    @Query('state') state?: string,
     @Res() res: Response,
+    @Query('state') state?: string,
   ) {
     if (!code) {
       throw new BadRequestException('Authorization code is missing');
