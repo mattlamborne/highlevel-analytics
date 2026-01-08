@@ -78,12 +78,16 @@ export class AuthService {
 
       const tokenData = response.data;
 
+      // Log the token response to debug what fields we're getting
+      console.log('Token response data:', JSON.stringify(tokenData, null, 2));
+
       // Determine company_id and location_id
       // In HighLevel, location_id should be in the token response
       const locationId = tokenData.locationId || '';
       const companyId = tokenData.companyId || '';
 
       if (!locationId) {
+        console.error('Token response missing locationId. Full response:', tokenData);
         throw new BadRequestException('No location_id in token response');
       }
 
