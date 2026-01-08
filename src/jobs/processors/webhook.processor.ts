@@ -62,6 +62,33 @@ export class WebhookProcessor {
   }
 
   /**
+   * Transform HighLevel custom fields array to key-value object
+   * HighLevel returns: [{id: "xxx", key: "field_name", field_value: value}]
+   * We need: {field_name: value}
+   */
+  private transformCustomFields(customFields: any): Record<string, any> {
+    if (!customFields) return {};
+
+    // If already an object, return as-is
+    if (!Array.isArray(customFields)) return customFields;
+
+    // Transform array to object
+    const result: Record<string, any> = {};
+    for (const field of customFields) {
+      // HighLevel uses either 'key' or 'id' as the field identifier
+      const fieldKey = field.key || field.id;
+      // Value might be in 'field_value', 'value', or 'fieldValue'
+      const fieldValue = field.field_value ?? field.value ?? field.fieldValue;
+
+      if (fieldKey) {
+        result[fieldKey] = fieldValue;
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Process contact-related events (create, update, delete)
    */
   private async processContactEvent(event: any): Promise<void> {
@@ -82,6 +109,9 @@ export class WebhookProcessor {
       return;
     }
 
+    // Transform custom fields from array to object
+    const customFieldsObj = this.transformCustomFields(contact.customFields);
+
     // Update contacts cache
     await this.contactsCache.upsert({
       tenantId: event.tenantId,
@@ -92,7 +122,7 @@ export class WebhookProcessor {
       name: contact.name || `${contact.firstName || ''} ${contact.lastName || ''}`.trim(),
       createdAt: new Date(contact.dateAdded || Date.now()),
       updatedAt: new Date(contact.dateUpdated || Date.now()),
-      customFields: contact.customFields || {},
+      customFields: customFieldsObj,
     });
 
     // Update subscription if exists (custom fields may have changed)
