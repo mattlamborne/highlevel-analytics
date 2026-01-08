@@ -81,15 +81,18 @@ export class AuthService {
       // Log the token response to debug what fields we're getting
       console.log('Token response data:', JSON.stringify(tokenData, null, 2));
 
-      // Determine company_id and location_id
-      // In HighLevel, location_id should be in the token response
-      const locationId = tokenData.locationId || '';
+      // Handle both company-level and location-level installations
+      // Company-level: companyId present, no locationId (bulk installation)
+      // Location-level: both companyId and locationId present
       const companyId = tokenData.companyId || '';
+      const locationId = tokenData.locationId || companyId; // Use companyId as fallback
 
-      if (!locationId) {
-        console.error('Token response missing locationId. Full response:', tokenData);
-        throw new BadRequestException('No location_id in token response');
+      if (!companyId) {
+        console.error('Token response missing both companyId and locationId. Full response:', tokenData);
+        throw new BadRequestException('No company_id or location_id in token response');
       }
+
+      console.log(`Installation type: ${tokenData.locationId ? 'Location' : 'Company'}-level. CompanyId: ${companyId}, LocationId: ${locationId}`);
 
       // Encrypt tokens
       const accessTokenEnc = this.cryptoService.encrypt(tokenData.access_token);
