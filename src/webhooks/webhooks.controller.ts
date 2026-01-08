@@ -24,20 +24,26 @@ export class WebhooksController {
 
   /**
    * Receive webhooks from HighLevel
-   * POST /webhooks/ghl?tenant_id=xxx
+   * POST /webhooks/ghl
+   * HighLevel sends locationId or companyId in the payload, we look up the tenant from our installations
    */
   @Post('ghl')
   @HttpCode(HttpStatus.OK)
   async receiveGhlWebhook(
     @Body() body: any,
     @Headers() headers: Record<string, any>,
-    @Query('tenant_id') tenantId?: string,
   ) {
-    this.logger.debug('Received webhook from HighLevel');
+    this.logger.debug('Received webhook from HighLevel', { type: body?.type, locationId: body?.locationId, companyId: body?.companyId });
 
-    // Validate tenant_id is provided
-    if (!tenantId) {
-      throw new BadRequestException('tenant_id query parameter is required');
+    // Validate payload structure
+    if (!body || !body.type) {
+      throw new BadRequestException('Invalid webhook payload: missing type');
+    }
+
+    // Extract locationId or companyId from payload
+    const locationId = body.locationId || body.companyId;
+    if (!locationId) {
+      throw new BadRequestException('Invalid webhook payload: missing locationId or companyId');
     }
 
     // Verify webhook signature (optional for now)
@@ -55,15 +61,8 @@ export class WebhooksController {
       }
     }
 
-    // Validate payload structure
-    if (!body || !body.type || !body.locationId) {
-      throw new BadRequestException(
-        'Invalid webhook payload: missing type or locationId',
-      );
-    }
-
-    // Process webhook
-    const result = await this.webhooksService.processWebhook(tenantId, body);
+    // Process webhook (service will look up tenant from locationId)
+    const result = await this.webhooksService.processWebhook(locationId, body);
 
     // Return success response
     return {
