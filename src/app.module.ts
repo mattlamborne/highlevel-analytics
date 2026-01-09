@@ -9,6 +9,7 @@ import { GhlClientModule } from './ghl-client/ghl-client.module';
 import { JobsModule } from './jobs/jobs.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { DebugModule } from './debug/debug.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MetricsModule } from './metrics/metrics.module';
     GhlClientModule,
     WebhooksModule,
     MetricsModule,
+    DebugModule,
   ],
   controllers: [AppController],
 })
