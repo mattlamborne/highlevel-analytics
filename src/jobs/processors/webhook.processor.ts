@@ -136,7 +136,7 @@ export class WebhookProcessor {
         tenantId: event.tenantId,
         locationId: event.locationId,
         contactId: contact.id,
-        customFields: contact.customFields || {},
+        customFields: customFieldsObj,
       },
       metricRules,
     );
