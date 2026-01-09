@@ -248,12 +248,16 @@ export class GhlClientService {
 
   /**
    * Get single appointment
+   * HighLevel API: GET /calendars/events/:eventId
+   * Note: Requires query param eventId, not path param
    */
   async getAppointment(locationId: string, appointmentId: string): Promise<GhlAppointment> {
     const response = await this.makeRequest<{ event: GhlAppointment }>(
       'GET',
-      `/calendars/events/${appointmentId}`,
+      `/calendars/events`,
       locationId,
+      undefined,
+      { eventId: appointmentId },
     );
     return response.event;
   }
